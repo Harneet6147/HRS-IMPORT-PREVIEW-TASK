@@ -93,16 +93,6 @@ gives both a manager ID and a manager email, and they point at different people.
 
 ## Things I'd fix with more time
 
-- **Only one manager error is shown per row.** If both the manager ID and the
-  manager email are wrong, you only see the ID problem. The identity check
-  already collects every problem on a row, so manager resolution should do the
-  same. This is the first thing I'd change.
-- **Cycles aren't grouped.** Two separate loops show up as one list of people.
-  The code already knows which loop each person belongs to, so splitting them out
-  wouldn't be much work — it just wasn't needed.
-- **The whole file is loaded into memory**, capped at 25MB. Reading could be done
-  row by row, but working out the hierarchy can't — a manager might be listed
-  after their team, so you need everyone before you can start.
 - **Repeated column names aren't caught.** If a file has `email` twice, Python's
   CSV reader keeps the last one and ignores the first.
 - **No pagination.** A huge file with thousands of errors would be one very long
