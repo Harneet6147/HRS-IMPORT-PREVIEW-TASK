@@ -140,7 +140,7 @@ parsing and hierarchy code and the tests.
 The main thing I changed was cycle detection. The first version was recursive,
 which reads more naturally in Python, but the brief mentions files up to 100,000
 employees and Python only handles about 1,000 levels of recursion. A long
-reporting chain would crash rather than give a wrong answer. Then I put the loop version back.
+reporting chain would crash rather than give a wrong answer.
 
 I also changed which columns are required. The first version demanded all six,
 but `employee_name` and `department` are only displayed and don't affect any
