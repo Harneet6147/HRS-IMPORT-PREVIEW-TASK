@@ -1,0 +1,25 @@
+{% extends "preview/base.html" %}
+{% block content %}
+  <h1>HRIS Import Preview</h1>
+  <p class="muted">
+    Upload a client HRIS export to inspect its reporting hierarchy and find data
+    problems. Nothing is saved &mdash; the file is analyzed in memory only.
+  </p>
+
+  {% if error %}
+    <div class="error-box"><strong>Could not read that file.</strong><br>{{ error }}</div>
+  {% endif %}
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <p><input type="file" name="csv_file" accept=".csv,text/csv" required></p>
+    <p><button type="submit">Preview import</button></p>
+  </form>
+
+  <h2>Expected columns</h2>
+  <p class="muted">
+    <code>employee_id</code>, <code>employee_name</code>, <code>email</code>,
+    <code>manager_id</code>, <code>manager_email</code>, <code>department</code>
+    &mdash; in any order. UTF-8, with or without a byte-order mark.
+  </p>
+{% endblock %}

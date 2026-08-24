@@ -1,0 +1,73 @@
+{% extends "preview/base.html" %}
+{% block title %}Preview: {{ filename }}{% endblock %}
+{% block content %}
+  <h1>Import preview</h1>
+  <p class="muted">{{ filename }} &middot; <a href="{% url 'upload_preview' %}">upload a different file</a></p>
+
+  <div class="summary">
+    <div class="stat"><div class="num">{{ total_rows }}</div><div class="label">Source rows</div></div>
+    <div class="stat"><div class="num">{{ accepted_count }}</div><div class="label">Accepted for analysis</div></div>
+    <div class="stat {% if errors %}bad{% endif %}"><div class="num">{{ errors|length }}</div><div class="label">Validation errors</div></div>
+    <div class="stat"><div class="num">{{ result.roots|length }}</div><div class="label">Root employees</div></div>
+    <div class="stat"><div class="num">{{ result.managers|length }}</div><div class="label">Managers</div></div>
+    <div class="stat {% if result.cycle_members %}bad{% endif %}"><div class="num">{{ result.cycle_members|length }}</div><div class="label">In a reporting cycle</div></div>
+  </div>
+
+  <h2>Validation errors</h2>
+  {% if errors %}
+    <table>
+      <tr><th style="width:80px">Row</th><th style="width:110px">Employee ID</th><th>Problem</th></tr>
+      {% for e in errors %}
+        <tr>
+          <td>{{ e.row_number }}</td>
+          <td>{{ e.employee_id|default:"&mdash;" }}</td>
+          <td>{{ e.message }}</td>
+        </tr>
+      {% endfor %}
+    </table>
+    <p class="muted" style="margin-top:8px">Row numbers refer to lines in the uploaded file, where the header is line 1.</p>
+  {% else %}
+    <p class="none">No validation errors found.</p>
+  {% endif %}
+
+  <h2>Employees in a reporting cycle</h2>
+  {% if result.cycle_members %}
+    <p class="muted">These employees report to each other in a loop, so they have no path to a root.</p>
+    <table>
+      <tr><th style="width:80px">Row</th><th>Employee</th><th>Reports to</th></tr>
+      {% for employee, manager in result.cycle_members %}
+        <tr>
+          <td>{{ employee.row_number }}</td>
+          <td>{{ employee.employee_name|default:employee.employee_id }} <span class="muted">({{ employee.employee_id }})</span></td>
+          <td>{{ manager.employee_name|default:manager.employee_id }} <span class="muted">({{ manager.employee_id }})</span></td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% else %}
+    <p class="none">No reporting cycles found.</p>
+  {% endif %}
+
+  <h2>Root employees (no manager)</h2>
+  {% if result.roots %}
+    <table>
+      <tr><th style="width:80px">Row</th><th style="width:110px">Employee ID</th><th>Name</th><th>Department</th></tr>
+      {% for e in result.roots %}
+        <tr><td>{{ e.row_number }}</td><td>{{ e.employee_id }}</td><td>{{ e.employee_name }}</td><td>{{ e.department }}</td></tr>
+      {% endfor %}
+    </table>
+  {% else %}
+    <p class="none">No root employees found. Every accepted employee has a manager or a manager error.</p>
+  {% endif %}
+
+  <h2>Managers and direct-report counts</h2>
+  {% if result.managers %}
+    <table>
+      <tr><th style="width:110px">Employee ID</th><th>Name</th><th>Department</th><th style="width:130px">Direct reports</th></tr>
+      {% for manager, count in result.managers %}
+        <tr><td>{{ manager.employee_id }}</td><td>{{ manager.employee_name }}</td><td>{{ manager.department }}</td><td>{{ count }}</td></tr>
+      {% endfor %}
+    </table>
+  {% else %}
+    <p class="none">No reporting relationships were resolved.</p>
+  {% endif %}
+{% endblock %}
